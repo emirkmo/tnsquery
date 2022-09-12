@@ -1,6 +1,31 @@
 # tnsquery
 
-This project was generated using fastapi_template.
+`tnsquery` is an asynchronous API for performing simple transient data queries from the Transient Name Server (TNS),
+or from a local postgres database. It uses async FastAPI, with SQLAlchemy to interface with the database,
+uvicorn for the webserver, and HTTPX.AsyncClient to make requests to TNS and other astronomical public APIs.
+
+The API is purposefully limited to only making object get queries to the TNS using the snphot_bot,
+with no associated photometry/spectra downloaded, to minimize server load on TNS and hopefully allow
+the API to be open to the public, pending approval from the TNS.
+
+The goal is for this to integrate with services such as `astropy.coordinates.SkyCoord` to provide
+an easy way to query for coordinates and other basic information for transients/supernovae, without
+requiring users to create their own TNS bots and manage their API_KEY, user-agent info, and quotas.
+It also integrates with https://github.com/emirkmo/supernova supernova analysis package for easily
+converting photometry to publication ready lightcurves, plots, bolometric lightcurve fits, and more.
+Photometry can be generated using https://github.com/SNflows/flows https://github.com/emirkmo/ztfphot
+or downloaded from public surveys, etc., while the basic trabsient info can be programtically retreieved
+using `tnsquery`.
+
+...in Development. Currently The TNS API, the Postgres database local API, and the web deployment work.
+Todo: 
+ 1 - IRSA E(B-V) automatic look-up using astroquery.
+ 2 - Deploy publicly behind nginx on local domain.
+ 3 - Add log-based limits.
+
+
+
+The project structure was generated using fastapi_template and the webserver and database run on docker containers.
 
 ## Poetry
 
