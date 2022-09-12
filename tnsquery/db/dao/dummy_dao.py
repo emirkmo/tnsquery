@@ -46,6 +46,8 @@ class DummyDAO:
         :param name: name of dummy instance.
         :return: dummy models.
         """
+        
+        # self.session.get(DummyModel, name=name)  #  .filter(DummyModel.name == name).all()
         query = select(DummyModel)
         if name:
             query = query.where(DummyModel.name == name)

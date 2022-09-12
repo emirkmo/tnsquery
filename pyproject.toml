@@ -2,16 +2,13 @@
 name = "tnsquery"
 version = "0.1.0"
 description = "Python API for limited queries of the Transient Name Server to obtain Supernova/Transient metadata "
-authors = [
-
-]
-maintainers = [
-
-]
+authors = ["Emir Karamehmetoglu <emirkmo@github.com>"]
+maintainers = ["Emir Karamehmetoglu <emirkmo@github.com>"]
 readme = "README.md"
+packages = [{include = "tnsquery"}]
 
 [tool.poetry.dependencies]
-python = "^3.9"
+python = "^3.10"
 fastapi = "^0.75.0"
 uvicorn = { version = "^0.17.0", extras = ["standard"] }
 pydantic = {version = "^1.9.0", extras = ["dotenv"]}
@@ -21,6 +18,10 @@ SQLAlchemy = {version = "^1.4", extras = ["mypy", "asyncio"]}
 alembic = "^1.7.7"
 asyncpg = {version = "^0.25.0", extras = ["sa"]}
 httptools = "^0.3.0"
+httpx = "^0.22.0"
+astroquery = "^0.4.7.dev8038"
+astropy = "^5.1.0"
+numpy = "^1.23.3"
 
 [tool.poetry.dev-dependencies]
 pytest = "^7.0"

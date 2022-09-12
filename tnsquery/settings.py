@@ -40,7 +40,7 @@ class Settings(BaseSettings):
     log_level: LogLevel = LogLevel.INFO
 
     # Variables for the database
-    db_host: str = "localhost"
+    db_host: str = "openmediavault.local"
     db_port: int = 5432
     db_user: str = "tnsquery"
     db_pass: str = "tnsquery"

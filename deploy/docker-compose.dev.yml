@@ -5,9 +5,17 @@ services:
     ports:
       # Exposes application port.
     - "8000:8000"
+    - "5432:5432"
     volumes:
       # Adds current directory as volume.
     - .:/app/src/
     environment:
       # Enables autoreload.
       TNSQUERY_RELOAD: "True"
+      TNSQUERY_HOST: 0.0.0.0
+      TNSQUERY_DB_HOST: http://openmediavault.local
+      TNSQUERY_DB_PORT: 5432
+      TNSQUERY_DB_USER: tnsquery
+      TNSQUERY_DB_PASS: tnsquery
+      TNSQUERY_DB_BASE: tnsquery
+
