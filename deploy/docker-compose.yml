@@ -13,7 +13,7 @@ services:
       db:
         condition: service_healthy
     environment:
-      TNSQUERY_HOST: 0.0.0.0
+      TNSQUERY_HOST: localhost
       TNSQUERY_DB_HOST: tnsquery-db
       TNSQUERY_DB_PORT: 5432
       TNSQUERY_DB_USER: tnsquery

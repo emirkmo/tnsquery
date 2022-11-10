@@ -75,7 +75,7 @@ $ tree "tnsquery"
 tnsquery
 ├── conftest.py  # Fixtures for all tests.
 ├── db  # module contains db configurations
-│   ├── dao  # Data Access Objects. Contains different classes to inteact with database.
+│   ├── dao  # Data Access Objects. Contains different classes to interact with database.
 │   └── models  # Package contains different models for ORMs.
 ├── __main__.py  # Startup script. Starts uvicorn.
 ├── services  # Package for different external services such as rabbit or redis etc.
