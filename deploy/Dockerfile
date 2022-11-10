@@ -7,13 +7,11 @@ RUN poetry config virtualenvs.create false
 
 # Copying requirements of a project
 COPY pyproject.toml poetry.lock /app/src/
+COPY ./tnsquery /app/src/
+COPY . /app/srcinstal
 WORKDIR /app/src
 
-# Installing requirements
-RUN poetry install
-
 # Copying actuall application
-COPY . /app/src/
 RUN poetry install
 
 CMD ["/usr/local/bin/python", "-m", "tnsquery"]
