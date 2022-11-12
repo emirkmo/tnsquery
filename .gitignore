@@ -116,6 +116,7 @@ venv/
 ENV/
 env.bak/
 venv.bak/
+*.SECRET
 
 # Spyder project settings
 .spyderproject
@@ -141,4 +142,5 @@ dmypy.json
 # Cython debug symbols
 cython_debug/
 
-*.SECRET
+# IAC GCP
+deploy/*.untracked
