@@ -30,8 +30,8 @@ class ATModel(Base):
 
     __tablename__ = "transients"
 
-    id = Column("id", Integer(), primary_key=True, autoincrement=True)  # Local (cached) ID
-    name = Column("name", String)  # noqa: WPS432  # IAU name
+    id = Column("id", Integer, primary_key=True, autoincrement=True)  # Local (cached) ID
+    name = Column("name", String(100), nullable=False, unique=True)  # noqa: WPS432  # IAU name
     redshift = Column("redshift", Float)
     ra = Column("ra", Float)  # Right ascension (J2000) in degrees
     dec = Column("dec", Float)  # Declination (J2000) in degrees
