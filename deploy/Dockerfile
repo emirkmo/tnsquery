@@ -1,4 +1,4 @@
-FROM --platform=linux/amd64 python:3.10.7-slim-buster
+FROM --platform=linux/amd64 python:3.10.8-buster
 
 RUN pip install poetry==1.1.13
 
