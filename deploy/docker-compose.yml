@@ -10,7 +10,7 @@ services:
     environment:
       TNSQUERY_RELOAD: "True"
       TNSQUERY_HOST: localhost
-      TNSQUERY_DB_HOST: 10.92.48.2
+      TNSQUERY_DB_HOST: "10.92.48.2"
       TNSQUERY_DB_PORT: 5432
       TNSQUERY_DB_USER: tnsquery
       TNSQUERY_DB_PASS: tnsquery
