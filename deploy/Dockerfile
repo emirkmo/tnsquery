@@ -1,14 +1,14 @@
-FROM python:3.10.7-slim-buster
+FROM --platform=linux/amd64 python:3.10.7-slim-buster
 
 RUN pip install poetry==1.1.13
 
 # Configuring poetry
+COPY pyproject.toml poetry.lock /app/src/
 RUN poetry config virtualenvs.create false
 
 # Copying requirements of a project
-COPY pyproject.toml poetry.lock /app/src/
 COPY ./tnsquery /app/src/
-COPY . /app/srcinstal
+COPY . /app/src
 WORKDIR /app/src
 
 # Copying actuall application
