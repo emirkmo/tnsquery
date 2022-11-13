@@ -4,6 +4,7 @@ from tempfile import gettempdir
 
 from pydantic import BaseSettings
 from yarl import URL
+import os
 
 TEMP_DIR = Path(gettempdir())
 
@@ -27,8 +28,8 @@ class Settings(BaseSettings):
     with environment variables.
     """
 
-    host: str = "127.0.0.1"
-    port: int = 8001
+    host: str = "0.0.0.0"
+    port: int = int(os.environ.get("PORT", 8080))
     # quantity of workers for uvicorn
     workers_count: int = 1
     # Enable uvicorn reloading
