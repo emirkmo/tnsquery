@@ -17,11 +17,10 @@ services:
       TNSQUERY_DB_BASE: tnsquery
     ports:
       # Exposes application port.
-    - "8001:8001"
     - "8080:8080"
-    - "80:80"
+    - "5432:5432"
     volumes:
       # Adds current directory as volume.
     - .:/app/src
-    env_file:
-    - .env
+    #env_file:
+    #- .env
