@@ -4,6 +4,8 @@ from tempfile import gettempdir
 
 from pydantic import BaseSettings
 from yarl import URL
+import logging
+import os
 
 TEMP_DIR = Path(gettempdir())
 
@@ -27,8 +29,13 @@ class Settings(BaseSettings):
     with environment variables.
     """
 
-    host: str = "127.0.0.1"
-    port: int = 8001
+    host: str = "0.0.0.0"
+    port: int = int(os.environ.get("PORT", 8080))
+    if port != 8080: ## not running in prod:
+        logger = logging.getLogger()
+        logger.setLevel(logging.DEBUG)
+        logger.debug("port should be 8080, but is %s", port)
+        port = 8080 
     # quantity of workers for uvicorn
     workers_count: int = 1
     # Enable uvicorn reloading
@@ -40,7 +47,7 @@ class Settings(BaseSettings):
     log_level: LogLevel = LogLevel.INFO
 
     # Variables for the database
-    db_host: str = "openmediavault.local"
+    db_host: str = "10.92.48.2"
     db_port: int = 5432
     db_user: str = "tnsquery"
     db_pass: str = "tnsquery"
