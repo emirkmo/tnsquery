@@ -2,7 +2,7 @@ from lib2to3.pgen2.token import AT
 from typing import List, Optional
 
 from fastapi import Depends
-from sqlalchemy import select, insert, delete, update, cast, Float, String, Integer
+from sqlalchemy import Float, Integer, String, cast, delete, insert, select, update
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from tnsquery.db.dependencies import get_db_session
@@ -31,7 +31,7 @@ class TransientDAO:
 
         :param limit: limit of transients.
         :param offset: offset of transients.
-        :return: stream of transients.
+        :return: transients, a stream of transients.
         """
         raw_transients = await self.session.execute(
             select(ATModel).limit(limit).offset(offset),
@@ -63,13 +63,17 @@ class TransientDAO:
         """
         query = delete(ATModel).where(ATModel.name == name)
         await self.session.execute(query)
-        
-    async def update_param(self, model: ATModel, paramname: str, paramvalue: str|float) -> None:
+        await self.session.flush()
+
+    async def update_param(
+        self, model: ATModel, paramname: str, paramvalue: str | float
+    ) -> None:
         """
         Update parameter of transient model.
 
         :param name: name of parameter to update.
         :paramvalue: value of updated parameter.
         """
+        self.session.add(model)
         setattr(model, paramname, paramvalue)
-        
+        await self.session.flush()

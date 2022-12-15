@@ -1,5 +1,4 @@
-from typing import AsyncGenerator, Optional
-from contextvars import ContextVar
+from typing import AsyncGenerator
 from sqlalchemy.ext.asyncio import AsyncSession
 from starlette.requests import Request
 

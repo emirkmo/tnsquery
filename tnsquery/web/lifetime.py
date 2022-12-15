@@ -31,6 +31,7 @@ def _setup_db(app: FastAPI) -> None:  # pragma: no cover
             expire_on_commit=False,
             class_=AsyncSession,  # type: ignore
             future=True,
+            autoflush=True,
         ),
         scopefunc=current_task,
     )

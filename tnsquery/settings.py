@@ -1,11 +1,11 @@
 import enum
+import logging
+import os
 from pathlib import Path
 from tempfile import gettempdir
 
-from pydantic import BaseSettings
+from pydantic import BaseSettings, Field
 from yarl import URL
-import logging
-import os
 
 TEMP_DIR = Path(gettempdir())
 
@@ -29,13 +29,15 @@ class Settings(BaseSettings):
     with environment variables.
     """
 
+    api_key: str = Field(..., env="API_KEY")  # Required TNSQUERY_API_KEY
     host: str = "0.0.0.0"
-    port: int = int(os.environ.get("PORT", 8080))
-    if port != 8080: ## not running in prod:
-        logger = logging.getLogger()
-        logger.setLevel(logging.DEBUG)
-        logger.debug("port should be 8080, but is %s", port)
-        port = 8080 
+    port: int = Field(8080, env="PORT")
+    # int(os.environ.get("PORT", 8080))
+    # if port != 8080:  # not running in prod:
+    #     logger = logging.getLogger()
+    #     logger.setLevel(logging.DEBUG)
+    #     logger.debug("port should be 8080, but is %s", port)
+    #     # port = 8080
     # quantity of workers for uvicorn
     workers_count: int = 1
     # Enable uvicorn reloading

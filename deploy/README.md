@@ -18,10 +18,16 @@ tnsquery-db
 Serverless VPC connection
 private-ip
 
+# build & deploy  
+
+docker-compose --project-directory . build --no-cache
+
 Remote connection:
 cloud-sql-auth-proxy (installed and running on docker)
+gcloud auth activate-service-account --key-file=/path/to/file
 
-
+docker tag <image> <region>-docker.pkg.dev/<project-id>/repository/project-name:tag
+docker push
 
 
 

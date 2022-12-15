@@ -1,6 +1,6 @@
 FROM --platform=linux/amd64 python:3.10.8-buster
 
-RUN pip install poetry==1.1.13
+RUN pip install poetry==1.3.1
 
 # Configuring poetry
 COPY pyproject.toml poetry.lock /app/src/
