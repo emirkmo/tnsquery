@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta charset="UTF-8">
+    <link rel="stylesheet" href="https://unpkg.com/@picocss/pico@latest/css/pico.min.css">
+    <link id="favicon" rel="icon" type="image/x-icon" href="/static/favicon.ico">
+    <title>TNSQuery Search Results</title>
+    <nav class="container">
+        <ul>
+          <li><strong>TNSQUERY</strong></li>
+        </ul>
+        <ul>
+          <li><a href="/api/docs#" data-tooltip="Try Me! (Interactive OpenAPI Docs)" data-placement="bottom" role="button">API</a></li>
+          <li><a href="/search">Search</a></li>
+          <li><a href="https://github.com/emirkmo/tnsquery">GitHub</a></li>
+          <li><a href="https://wis-tns.org/" class="secondary">TNS</a></li>
+        </ul>
+    </nav>
+
+        <form class="container" action="/search" method="get">
+            <label for="iauname">
+                Search for transient(s) using IAU Names: 
+                <input type="search" id="iauname" name="name" placeholder="SN2020abc, 2021def, ..." required>
+                <small>Get basic metadata about transients from the TNS cached at TNSQUERY. Enter one or more <b><u>comma-separated</u></b> names.</small>
+                <button id="search_button" type="submit" data-tooltip="Search TNSQuery for one or more transients">Search</button>                
+            </label>
+        </form>
+        <div id="search_tags" class="container">
+        </div>
+
+</head>
+<body>
+    <h2 class="container">Search Results:</h2>
+    <figure class="container">
+    <table role="grid">
+        <thead>
+            <tr>
+                <th scope="col">#</th>
+                <th scope="col">Name</th>
+                <th scope="col">RA [J2000]</th>
+                <th scope="col">DEC [J2000]</th>
+                <th scope="col">Redshift</th>
+                <th scope="col">Extinction [E(B-V)]</th>
+            </tr>
+        </thead>
+        <tbody>
+        {% for item in items %}     
+            <tr>
+                <th scope="row">{{ loop.index }}</th>
+                <td>{{ item.name }}</td>
+                <td>{{ item.ra }}</td>
+                <td>{{ item.dec }}</td>
+                <td>{{ item.redshift }}</td>
+                <td>{{ item.ebv }}</td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+</figure>
+
+</body>
+
+<script>
+
+// const input_text = document.getElementById('iauname');
+// var tags_div = document.getElementById('search_tags');
+
+// input_text.addEventListener('keyup', function(event){
+//     if(event.key.value != 13){
+//         create_tags(event.target.value)
+//     }
+// })
+
+// function create_tags(word) {
+//     const tags = word.split(',').filter(tag => tag.trim() !== '').map(tag => tag.trim())
+//     tags_div.innerHTML = ''
+//     tags.forEach(tag => {
+//         // const table_col = document.createElement('td');
+//         const kbd_element = document.createElement('kbd');
+//         kbd_element.innerText = tag
+//         // table_col.appendChild(kbd_element)
+//         tags_div.appendChild(kbd_element)
+//         tags_div.appendChild( document.createTextNode( '\u00A0' ) );
+//     })
+// }
+</script>
+
+</html>

@@ -29,9 +29,9 @@ class Settings(BaseSettings):
     with environment variables.
     """
 
-    api_key: str = Field(..., env="API_KEY")  # Required TNSQUERY_API_KEY
+    api_key: str = Field(..., env="TNSQUERY_API_KEY")  # Required TNSQUERY_API_KEY
     host: str = "0.0.0.0"
-    port: int = Field(8080, env="PORT")
+    port: int = Field(8080, env="TNSQUERY_PORT")
     # int(os.environ.get("PORT", 8080))
     # if port != 8080:  # not running in prod:
     #     logger = logging.getLogger()
@@ -39,9 +39,9 @@ class Settings(BaseSettings):
     #     logger.debug("port should be 8080, but is %s", port)
     #     # port = 8080
     # quantity of workers for uvicorn
-    workers_count: int = 1
+    workers_count: int = 2
     # Enable uvicorn reloading
-    reload: bool = False
+    reload: bool = True
 
     # Current environment
     environment: str = "dev"
@@ -49,12 +49,12 @@ class Settings(BaseSettings):
     log_level: LogLevel = LogLevel.INFO
 
     # Variables for the database
-    db_host: str = "10.92.48.2"
+    db_host: str = Field("10.92.48.2", env="TNSQUERY_DB_HOST")
     db_port: int = 5432
     db_user: str = "tnsquery"
     db_pass: str = "tnsquery"
     db_base: str = "tnsquery"
-    db_echo: bool = False
+    db_echo: bool = True
 
     @property
     def db_url(self) -> URL:

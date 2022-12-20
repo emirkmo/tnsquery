@@ -9,6 +9,7 @@ RUN poetry config virtualenvs.create false
 # Copying requirements of a project
 COPY ./tnsquery /app/src/
 COPY . /app/src
+COPY .env /app/src/.env
 WORKDIR /app/src
 
 # Copying actuall application

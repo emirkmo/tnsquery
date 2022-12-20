@@ -22,7 +22,6 @@ def _setup_db(app: FastAPI) -> None:  # pragma: no cover
 
     :param app: fastAPI application.
     """
-    print(str(settings.db_url))
     engine = create_async_engine(str(settings.db_url), echo=settings.db_echo, future=True)
     
     session_factory = async_scoped_session(
@@ -89,5 +88,5 @@ async def create_db_tables(app: FastAPI) -> None:  # pragma: no cover
     """
     engine = app.state.db_engine
     async with engine.begin() as conn:
-        await conn.run_sync(Base.metadata.create_all)
+        await conn.run_sync(Base.metadata.create_all)  # type: ignore
     

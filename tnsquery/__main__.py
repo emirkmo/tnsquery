@@ -2,6 +2,7 @@ import uvicorn
 
 from tnsquery.settings import settings
 
+
 def main() -> None:
     """Entrypoint of the application."""
     uvicorn.run(
