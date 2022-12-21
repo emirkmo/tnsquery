@@ -81,9 +81,6 @@ async def get_transients(
     return transients
 
 
-test = get_transients
-
-
 def _names_means_want_all(names: list[str]) -> bool:
     names_has_default_strings = len({"all", "string"} | set(names)) > 1
     want_all = len(names) == 1 and names_has_default_strings

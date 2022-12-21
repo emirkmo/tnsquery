@@ -55,6 +55,16 @@ class Settings(BaseSettings):
     db_pass: str = "tnsquery"
     db_base: str = "tnsquery"
     db_echo: bool = True
+    
+    # Docs | Open Api
+    open_api_url: str = "/api/openapi.json"
+    redoc_url: str = "/api/redoc"
+    swagger_css_url: str = "/openapi/dark.css"
+    open_api_dir: str = "tnsquery/openapi"
+    
+    # Static Mounts
+    static_files_dir: str = "tnsquery/static"
+    favicon_url: str = "/static/favicon.ico"
 
     @property
     def db_url(self) -> URL:

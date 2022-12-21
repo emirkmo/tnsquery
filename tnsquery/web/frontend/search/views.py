@@ -17,7 +17,7 @@ from tnsquery.web.api.transient.views import (
     list_all_transients,
 )
 
-# from tnsquery.web.frontend.templates import TemplateResponse, Templates, templates
+# from tnsquery.web.frontend.templates import TemplateResponse, Templates, templates  # noqa:E800
 
 router = APIRouter()
 
@@ -127,22 +127,3 @@ async def search(
             detail=f"Supernova with name {name} not found. Other queries are not implemented yet.",
         )
     return await display_transients(request, transients)
-
-    # if name == "":
-    #     transients = await list_all_transients(limit=limit, offset=offset, dao=dao)
-    #     return await display_transients(request, transients)
-
-    # stripped_name = "".join(name.split())
-    # names = stripped_name.split(",")
-    # if len(names) == 1:
-    #     transients = [await get_transient(names[0], dao=dao)]
-    #     return await display_transients(request, transients)
-
-    # transients = await get_transients(
-    #     names=names,
-    #     limit=limit,
-    #     offset=offset,
-    #     dao=dao,
-    # )
-
-    # return await display_transients(request, transients)
