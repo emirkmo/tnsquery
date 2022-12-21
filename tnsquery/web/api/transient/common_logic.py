@@ -1,5 +1,3 @@
-import asyncio
-
 from fastapi import Depends
 
 from tnsquery.db.dao.transient_dao import TransientDAO

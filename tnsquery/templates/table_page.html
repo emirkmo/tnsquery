@@ -1,0 +1,49 @@
+{# table_page.html #}
+{% extends "base.html" %}
+<!-- <!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta charset="UTF-8">
+    <link rel="stylesheet" href="https://unpkg.com/@picocss/pico@latest/css/pico.min.css">
+    <link id="favicon" rel="icon" type="image/x-icon" href="/static/favicon.ico"> -->
+{% block title %}
+    <title>TNSQuery Search Results</title>
+{% endblock title %}
+
+{% block header_rest %}
+    <!-- Search bar with dynamic tags -->
+    {% include "search_form.html" %}
+{% endblock header_rest %}
+
+{% block body %}
+    <h2 class="container">Search Results:</h2>
+    <figure class="container">
+    <table role="grid">
+        <!-- Responsive Table -->
+        {% block table %}
+        <thead>
+            <tr>
+                <th scope="col">#</th>
+                <th scope="col">Name</th>
+                <th scope="col">RA [J2000]</th>
+                <th scope="col">DEC [J2000]</th>
+                <th scope="col">Redshift</th>
+                <th scope="col">Extinction [E(B-V)]</th>
+            </tr>
+        </thead>
+        <tbody>
+
+        </tbody>
+        {% endblock table %}
+    </table>
+</figure>
+{% endblock body %}
+
+
+{% block script %}
+<!-- dynamic tags. Load last. -->
+<script src="/static/search_tags.js"></script>
+{% endblock script %}
+</html>
+        

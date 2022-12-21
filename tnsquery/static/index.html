@@ -1,58 +1,89 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+<style>
+[data-theme="darkorange"] {
+  --primary: #f4511e;
+  --primary-hover: #ff5722;
+  --primary-focus: rgba(244, 81, 30, 0.25);
+  --primary-inverse: #FFF;
+}
+
+[data-theme="lightorange"],
+:root:not([data-theme="darkorange"]) {
+  --primary: #f4511e;
+  --primary-hover: #e64a19;
+  --primary-focus: rgba(244, 81, 30, 0.125);
+  --primary-inverse: #FFF;
+}
+
+</style>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=0.8">
+    <meta name="viewport" content="width=device-width, initial-scale=0.9">
     <link rel="stylesheet" href="https://unpkg.com/@picocss/pico@latest/css/pico.min.css">
     <link id="favicon" rel="icon" type="image/x-icon" href="/static/favicon.ico">
     <title>Search TNSQUERY</title>
     <nav class="container">
         <ul>
-          <li><strong>TNSQUERY</strong></li>
+          <li><strong><a href="/static" data-tooltip="Home" data-placement="right">TNSQUERY</strong></a></li>
         </ul>
         <ul>
-          <li><a href="/api/docs#" data-tooltip="Try Me! (Interactive OpenAPI Docs)" data-placement="bottom" role="button">API</a></li>
-          <li><a href="/search" data-tooltip="Search page" data-placement="bottom">Search</a></li>
+          <li><a href="/api/docs#" data-tooltip="Try Me! (Interactive OpenAPI Docs)" data-placement="bottom" role="button" class="outline">API Docs</a></li>
+          <li><a href="/search" data-tooltip="Search Page with Tabular View" data-placement="bottom">Search</a></li>
           <li><a href="https://github.com/emirkmo/tnsquery" data-tooltip="Source Code" data-placement="bottom">GitHub</a></li>
-          <li><a href="https://wis-tns.org/" class="secondary">TNS</a></li>
+          <li><a href="https://wis-tns.org/" data-tooltip="Transient Name Server (external!)" data-placement="bottom" class="secondary">TNS</a></li>
         </ul>
     </nav>
 </head>
 
 <body>
-    <header class="container">
-        <h2>TNSQUERY API</h2>
+    <main class="container">
+        <h2 class="container">TNSQUERY API</h2>
         <p class="container">
             Open source python API and a cached performant database for accessing basic 
             transient data (name, coordinates, type, redshift, etc.) from the 
             Transient Name Server (TNS), The IAU approved repository of astronomical 
             transient data. 
         </p>
+    <div class="container">
         <div class="grid">
-        <h4>Fast programmatic access to transient data from TNS:</h4>
-        <h3><mark>No Scientific Credentials Required!</mark></h3>
+            <div>
+                <h4>Fast programmatic access to transient data from TNS:&nbsp&nbsp
+                    <a href="/api/docs#" role="button" data-tooltip="Try Me! (Interactive API Docs)" data-placement="bottom">Try Me!</a>
+                </h4>
+                <!-- <h5>Interactive API Docs: <a href="/api/docs#" role="button">Try Me!</a></h5> -->
+            </div>
+            <div>
+                <h3><mark>No Scientific Credentials Required!</mark></h3>
+            </div>
         </div>
-        
-    </header>
-    <main class="container">
-        <div class="grid">
-        <form class="container" action="/search" method="get">
-            <label for="iauname">
-                Search for transient(s) using IAU Names:
-                <input type="search" id="iauname" name="name" placeholder="SN2020abc, 2021def, ..." required>
-                <small>Get basic metadata about transients from the TNS cached at TNSQUERY. Enter one or more <b><u>comma-separated</u></b> names.</small>
-                <button type="submit" data-tooltip="Search TNSQuery for one or more transients" data-placement="bottom">Search</button>
-            </label>
-        </form>
-
-        <blockquote>
-            "Science knows no country, because knowledge belongs to humanity..."
-            <footer>
-                <cite>- Loius Pasteur</cite>
-            </footer>
-        </blockquote>
     </div>
+        
+    <!-- </header> -->
+        <div class="grid">
+            <form action="/search" method="get">
+                <label for="iauname">
+                    <details>
+                        <summary>Search for transient(s) using <u>IAU Names</u>:</summary>
+                        <p>You may include or omit the "AT/SN" prefix, it will be stripped. IAU Names are of the form
+                            e.g. <em>2020ab</em>. Before spectroscopic classification it will have a prefix of "AT", changing
+                            to "SN" afterwards if a supernova.</p>
+                      </details>
+                    
+                    <input type="search" id="iauname" name="name" placeholder="SN2020abc, 2021def, ...">
+                    <small>Get basic metadata about transients from the TNS cached at TNSQUERY. Enter one or more <b><u>comma-separated</u></b> names.</small>
+                    <button data-theme="darkorange" type="submit" data-tooltip="Search TNSQuery for one or more transients" data-placement="bottom">Search</button>
+                </label>
+            </form>
 
+            <blockquote>
+                "Science knows no country, because knowledge belongs to humanity..."
+                <footer>
+                    <cite>- Loius Pasteur</cite>
+                </footer>
+            </blockquote>
+        </div>
+    <article>
     <p class="container">
         <ins>TNSQuery</ins> was created to enable open science with a goal of allowing everyone to
         programmatically access the TNS API, which is locked behind science credentials to prevent abuse.
@@ -61,24 +92,18 @@
         cache layer for the TNS for API queries which only need basic transient data (mainly coordinates).
     </p>
     <p class="container">
-        To that end, <ins>TNSQuery</ins> is supported by FLOWS Research group at Aarhus University,
+        To that end, <ins>TNSQuery</ins> is supported by FLOWS research group at Aarhus University,
         with the aim of being integrated into the popular open source community package Astropy.
         (Specifically enabling transient coordinate queries via SkyCoord and basic data via Astroquery).
-        Additionally, leveraring Astroquery, TNSQuery attachd basic cross-match data currently in the form of
+        Additionally, leveraring Astroquery, TNSQuery attaches basic cross-match data currently in the form of
         extinction from SFD (2011) Maps provided by IRSA.
     </p>
-    <div>
-        <h3>Interactive API Docs: <a href="/api/docs#" role="button">Try Me!</a></h3>
-    </div>
+    </article>
     </main>
-    <!-- </main>
-    </main> -->
-    <footer class="container">
-            <!-- </form> -->
-
-    </footer>
+</body>
+<footer>
     <div class="container-fluid">
-        <small>Created and maintained by Emir Karamehmetoglu</small>
+        <small>Created and maintained by <a class="contrast" href = "mailto: emir.k@phys.au.dk">Emir Karamehmetoglu</a></small>
     </div>
-    </body>
+</footer>
 </html>
