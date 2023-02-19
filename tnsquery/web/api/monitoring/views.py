@@ -1,6 +1,9 @@
+from typing import Literal
+
 from fastapi import APIRouter
 from starlette import status
-from typing import Literal
+
+from tnsquery.services.monitor_tns import reset_time
 
 router = APIRouter()
 
@@ -13,3 +16,15 @@ def health_check() -> Literal[200]:
     """
     stat = status.HTTP_200_OK
     return stat
+
+
+@router.get("/tns-time")
+def tns_wait_time() -> dict[str, int]:
+    """Return the current, total, and max wait times of the TNS API,
+    as well as the number of times the wait time has been triggered."""
+    return {
+        "current": reset_time.remaining_time,
+        "total": reset_time.waited_time,
+        "max": reset_time.max_time,
+        "triggered": reset_time.triggered,
+    }

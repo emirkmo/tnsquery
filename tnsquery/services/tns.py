@@ -1,15 +1,18 @@
 """TNS Service module. Provides TNSAPI as an async context manager."""
 import asyncio
 import json
+import logging
 import os
 from dataclasses import field
 from enum import Enum
 from typing import Any, Optional, Type
 
+from fastapi import HTTPException, status
 from httpx import AsyncClient, Response
 from pydantic.dataclasses import dataclass
 
 from tnsquery.db.models.transient_model import Transient
+from tnsquery.services.monitor_tns import reset_time
 
 
 class StrEnum(str, Enum):
@@ -80,9 +83,31 @@ class TNSAPI:
         data = {"objname": name, "photometry": "0", "spectra": "0"}
         params = {"api_key": self.bot.api_key, "data": json.dumps(data)}
 
-        response = await self.client.post(
-            url=TNSURL.api + "/object", data=params, headers=self.bot.headers
-        )
+        max_tries = 3
+        for _ in range(max_tries):
+            response: Response = await self.client.post(
+                url=TNSURL.api + "/object", data=params, headers=self.bot.headers
+            )
+
+            logging.info(
+                f"TNS Request {data['objname']} with bot id {self.bot.id} "
+                f"received: {response.status_code}"
+            )
+            # Determine if we are rate limited
+            limited = await reset_time.determine_if_limited(response)
+
+            if not limited:
+                break
+            logging.info("limited!: waiting: {reset_time.remaining_time}s")
+            # we are rate limited, must wait.
+            await reset_time.wait_remaining_time()
+        else:
+            raise HTTPException(
+                status_code=status.HTTP_408_REQUEST_TIMEOUT,
+                detail="TNS access was rejected 3 times.",
+            )
+
+        logging.info(response.json())
         data = self.validate_response(response)
         return data
 
@@ -113,7 +138,7 @@ class TNSAPI:
         z = data["redshift"] if data["redshift"] else 0
         ra = data["radeg"]
         dec = data["decdeg"]
-        ebv = 0.0
+        ebv: float = 0
         return Transient(name=name, redshift=z, ra=ra, dec=dec, ebv=ebv)
 
     async def __aenter__(self):
