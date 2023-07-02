@@ -1,8 +1,9 @@
-from typing import Any
+from typing import Any, cast
 
 from pydantic.dataclasses import dataclass
 from sqlalchemy.sql.schema import Column
 from sqlalchemy.sql.sqltypes import Float, Integer, String
+from fastapi import HTTPException, status
 
 from tnsquery.db.base import Base
 
@@ -56,11 +57,11 @@ class ATModel(Base):
 
     def as_transient(self) -> Transient:
         return Transient(
-            name=self.name,
-            redshift=self.redshift,
-            ra=self.ra,
-            dec=self.dec,
-            ebv=self.ebv,
+            name=cast(str, self.name),
+            redshift=cast(float, self.redshift),
+            ra=cast(float, self.ra),
+            dec=cast(float, self.dec),
+            ebv=cast(float, self.ebv),
         )
 
 
@@ -71,6 +72,9 @@ def verify_transient_name(name: str) -> str:
         name = name[2:]
 
     if not name[0:2].isnumeric():
-        raise ValueError(f"Name should be of form <year><identifier> but was: {name}")
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"Name should be of form <year><identifier> but was: {name}",
+        )
 
     return name

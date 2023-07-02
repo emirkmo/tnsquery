@@ -1,17 +1,18 @@
 """TNS Service module. Provides TNSAPI as an async context manager."""
 import asyncio
 import json
-import logging
 import os
 from dataclasses import field
 from enum import Enum
 from typing import Any, Optional, Type
 
 from fastapi import HTTPException, status
+from fastapi.logger import logger
 from httpx import AsyncClient, Response
 from pydantic.dataclasses import dataclass
 
 from tnsquery.db.models.transient_model import Transient
+from tnsquery.db.models.monitoring_model import TransientLogModel
 from tnsquery.services.monitor_tns import reset_time
 
 
@@ -66,12 +67,44 @@ class TNSBot:
         return api_key
 
 
+### {'id_code': 200, 'id_message': 'OK', 'data':
+# {'received_data':
+# {'objname': '2022G', 'photometry': 0, 'spectra': 0},
+# 'reply': {
+# 'objname': '2022G',
+# 'name_prefix': 'SN',
+# 'objid': 98453,
+# 'object_type': {'name': 'SN Ia', 'id': 3},
+# 'redshift': 0.077,
+# 'ra': '11:39:53.103',
+# 'dec': '-14:34:55.88',
+# 'radeg': 174.971264173,
+# 'decdeg': -14.5821883563,
+# 'radeg_err': 0,
+# 'decdeg_err': 0,
+# 'hostname': None,
+# 'host_redshift': None,
+# 'internal_names': 'ATLAS22aeh, PS22bqr',
+# 'discoverer_internal_name': 'ATLAS22aeh',
+# 'discoverydate': '2022-01-01 13:23:31.200',
+# 'discoverer': "J. Tonry, L. Denneau, H. Weiland (IfA, University of Hawaii), A. Heinze
+# 'reporter': 'ATLAS_Bot1',
+# 'reporterid': 35595, 'source': 'bot', 'discoverymag': 18.768,
+# 'discmagfilter': {'id': 72, 'name': 'orange', 'family': 'ATLAS'},
+# 'reporting_group': {'groupid': 18, 'group_name': 'ATLAS'},
+# 'discovery_data_source': {'groupid': 18, 'group_name': 'ATLAS'},
+# 'public': 1,
+# 'end_prop_period': None}
+# }}
+
+
 @dataclass(config=Config)
 class TNSAPI:
     bot: TNSBot = field(default_factory=TNSBot)
     client_type: Type[AsyncClient] = field(default=AsyncClient)
     client: AsyncClient = field(init=False)
     params: dict[str, str] = field(default_factory=dict)
+    session_query_logs: list[TransientLogModel] = field(default_factory=list)
 
     def __post_init__(self) -> None:
         """Post init."""
@@ -79,26 +112,43 @@ class TNSAPI:
         self.data = {"photometry": "0", "spectra": "0"}
         self.client = self.client_type()
 
-    async def get_obj(self, name: str) -> Optional[dict[str, Any]]:
+    async def get_obj(
+        self,
+        name: str,
+    ) -> Optional[dict[str, Any]]:
         data = {"objname": name, "photometry": "0", "spectra": "0"}
         params = {"api_key": self.bot.api_key, "data": json.dumps(data)}
 
         max_tries = 3
         for _ in range(max_tries):
+            object_url = TNSURL.api + "/object"
             response: Response = await self.client.post(
-                url=TNSURL.api + "/object", data=params, headers=self.bot.headers
+                url=object_url, data=params, headers=self.bot.headers
             )
 
-            logging.info(
+            logger.debug(
                 f"TNS Request {data['objname']} with bot id {self.bot.id} "
                 f"received: {response.status_code}"
             )
+
+            resp_json: dict[str, Any] = response.json()
+            logger.debug(resp_json)
+
+            # log the query as a monitoring model
+            log_query = TransientLogModel(
+                name=name,
+                query=f"{object_url}, {params}, {self.bot.headers}",
+                response=resp_json["id_message"],
+                code=response.status_code,
+            )
+            self.session_query_logs.append(log_query)
+
             # Determine if we are rate limited
             limited = await reset_time.determine_if_limited(response)
 
             if not limited:
                 break
-            logging.info("limited!: waiting: {reset_time.remaining_time}s")
+            logger.warn(f"limited!: waiting: {reset_time.remaining_time}s")
             # we are rate limited, must wait.
             await reset_time.wait_remaining_time()
         else:
@@ -107,7 +157,6 @@ class TNSAPI:
                 detail="TNS access was rejected 3 times.",
             )
 
-        logging.info(response.json())
         data = self.validate_response(response)
         return data
 
@@ -146,18 +195,20 @@ class TNSAPI:
 
     async def __aexit__(self, *excinfo):
         await self.client.aclose()
+        self.session_query_logs.clear()
 
 
-async def fetch_tns_transients(names: list[str]) -> list[Transient]:
-
+async def fetch_tns_transients(
+    names: list[str],
+) -> tuple[list[Transient], list[TransientLogModel]]:
     async with TNSAPI() as tns:
         transient_awaitables = (tns.make_transient(name) for name in names)
         transients: list[Transient] = await asyncio.gather(*transient_awaitables)
+        logs = tns.session_query_logs
+    return transients, logs
 
-    return transients
 
-
-async def fetch_tns_transient(name: str) -> Transient:
-    tns_transients = await fetch_tns_transients([name])
+async def fetch_tns_transient(name: str) -> tuple[Transient, list[TransientLogModel]]:
+    tns_transients, logs = await fetch_tns_transients([name])
     transient = tns_transients.pop()
-    return transient
+    return transient, logs

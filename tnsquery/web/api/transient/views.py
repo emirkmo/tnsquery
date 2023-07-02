@@ -2,8 +2,10 @@ from fastapi import APIRouter, Depends, Security, status
 from fastapi.exceptions import HTTPException
 
 from tnsquery.auth import get_api_key
+from tnsquery.db.dao.monitoring_dao import TransientLogDAO
 from tnsquery.db.dao.transient_dao import TransientDAO
 from tnsquery.db.models.transient_model import Transient
+from tnsquery.db.dependencies import get_db_session
 
 from .common_logic import (
     fetch_and_record_tns_transient,
@@ -17,11 +19,21 @@ router = APIRouter()
 TRANSIENTS_PAGE_LIMIT = 50
 
 
-@router.get("/transients/{name}", response_model=Transient, tags=["transients"])
+@router.get(
+    "/transients/{name}",
+    response_model=Transient,
+    tags=["transients"],
+    dependencies=[
+        Depends(get_db_session),
+        Depends(TransientDAO),
+        Depends(TransientLogDAO),
+    ],
+)
 async def get_transient(
     name: str,
     force_tns: bool = False,
-    dao: TransientDAO = Depends(),
+    transient_dao: TransientDAO = Depends(),
+    monitoring_dao: TransientLogDAO = Depends(),
 ) -> Transient:
     """
     Get transient data. If transient is not in the database or if force_tns
@@ -30,14 +42,15 @@ async def get_transient(
     Returns the data for a given transient.
     """
     if force_tns:
-        return await fetch_and_record_tns_transient(name, dao)
-    return await fetch_transient(name, dao)
+        return await fetch_and_record_tns_transient(name, transient_dao, monitoring_dao)
+    return await fetch_transient(name, transient_dao, monitoring_dao)
 
 
 @router.get("/search", response_model=Transient, tags=["transients"])
 async def search_transient(
     name: str,
-    dao: TransientDAO = Depends(),
+    transient_dao: TransientDAO = Depends(),
+    monitoring_dao: TransientLogDAO = Depends(),
 ) -> Transient:
     """
     Same as GET transient but used for searching via GET queries.
@@ -45,7 +58,7 @@ async def search_transient(
     leading SN/AT designations (SN2020XXY -> 2020XXY)
 
     Returns the data for a given transient as a simple HTML table instead of JSON."""
-    return await fetch_transient(name, dao)
+    return await fetch_transient(name, transient_dao, monitoring_dao)
 
 
 @router.get(
@@ -54,9 +67,9 @@ async def search_transient(
 async def list_all_transients(
     limit: int = 10,
     offset: int = 0,
-    dao: TransientDAO = Depends(),
+    transient_dao: TransientDAO = Depends(),
 ) -> list[Transient]:
-    return await window_transients(limit, offset, dao)
+    return await window_transients(transient_dao, limit, offset)
 
 
 @router.post("/transients", response_model=list[Transient], tags=["transients"])
@@ -64,7 +77,8 @@ async def get_transients(
     names: list[str],
     limit: int = 10,
     offset: int = 0,
-    dao: TransientDAO = Depends(),
+    transient_dao: TransientDAO = Depends(),
+    monitoring_dao: TransientLogDAO = Depends(),
 ) -> list[Transient]:
     """
     Get transient data as a list. If transient is not in the database
@@ -75,9 +89,15 @@ async def get_transients(
     limit = min(limit, TRANSIENTS_PAGE_LIMIT)
 
     if _names_means_want_all(names):
-        return await window_transients(limit, offset, dao)
+        return await window_transients(transient_dao, limit, offset)
 
-    transients = await fetch_transients(names, dao=dao, limit=limit, offset=offset)
+    transients = await fetch_transients(
+        names,
+        transient_dao=transient_dao,
+        monitoring_dao=monitoring_dao,
+        limit=limit,
+        offset=offset,
+    )
     return transients
 
 

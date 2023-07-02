@@ -25,7 +25,7 @@
     <title>Search TNSQUERY</title>
     <nav class="container">
         <ul>
-          <li><strong><a href="/static" data-tooltip="Home" data-placement="right">TNSQUERY</strong></a></li>
+          <li><strong><a href="/" data-tooltip="Home" data-placement="right">TNSQUERY</strong></a></li>
         </ul>
         <ul>
           <li><a href="/api/docs#" data-tooltip="Try Me! (Interactive OpenAPI Docs)" data-placement="bottom" role="button" class="outline">API Docs</a></li>
@@ -40,10 +40,10 @@
     <main class="container">
         <h2 class="container">TNSQUERY API</h2>
         <p class="container">
-            Open source python API and a cached performant database for accessing basic 
-            transient data (name, coordinates, type, redshift, etc.) from the 
-            Transient Name Server (TNS), The IAU approved repository of astronomical 
-            transient data. 
+            Open source python API and a cached performant database for accessing basic
+            transient data (name, coordinates, type, redshift, etc.) from the
+            Transient Name Server (TNS), The IAU approved repository of astronomical
+            transient data.
         </p>
     <div class="container">
         <div class="grid">
@@ -58,7 +58,7 @@
             </div>
         </div>
     </div>
-        
+
     <!-- </header> -->
         <div class="grid">
             <form action="/search" method="get">
@@ -69,7 +69,7 @@
                             e.g. <em>2020ab</em>. Before spectroscopic classification it will have a prefix of "AT", changing
                             to "SN" afterwards if a supernova.</p>
                       </details>
-                    
+
                     <input type="search" id="iauname" name="name" placeholder="SN2020abc, 2021def, ...">
                     <small>Get basic metadata about transients from the TNS cached at TNSQUERY. Enter one or more <b><u>comma-separated</u></b> names.</small>
                     <button data-theme="darkorange" type="submit" data-tooltip="Search TNSQuery for one or more transients" data-placement="bottom">Search</button>

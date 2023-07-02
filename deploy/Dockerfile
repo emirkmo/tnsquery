@@ -10,6 +10,7 @@ RUN poetry config virtualenvs.create false
 COPY ./tnsquery /app/src/
 COPY . /app/src
 COPY .env /app/src/.env
+COPY TNS_API_KEY.SECRET /app/src/TNS_API_KEY.SECRET
 WORKDIR /app/src
 
 # Copying actuall application

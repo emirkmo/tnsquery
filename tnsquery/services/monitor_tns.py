@@ -79,3 +79,5 @@ async def log_tns_usage(response: Response) -> None:
     """Use ResetTime singleton to log TNS usage"""
     raise NotImplementedError("Logging not implemented yet.")
     #await reset_time.determine_if_limited(response)
+
+

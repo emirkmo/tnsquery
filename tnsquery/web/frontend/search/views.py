@@ -1,15 +1,16 @@
 import warnings
 from dataclasses import asdict
 from enum import auto
-from typing import Any, Awaitable, Callable, Collection, Literal, TypeAlias
+from typing import Any, Awaitable, Callable, Collection, TypeAlias
 
 from fastapi import APIRouter, Depends, HTTPException, Request
 from fastapi.responses import HTMLResponse
 from fastapi.templating import Jinja2Templates
 from starlette.status import HTTP_400_BAD_REQUEST
+from tnsquery.db.dao.monitoring_dao import TransientLogDAO
 
 from tnsquery.db.dao.transient_dao import TransientDAO
-from tnsquery.db.models.transient_model import Transient
+from tnsquery.db.models.transient_model import Transient, verify_transient_name
 from tnsquery.services.tns import StrEnum
 from tnsquery.web.api.transient.views import (
     get_transient,
@@ -44,9 +45,12 @@ TransientAwaitable: TypeAlias = Callable[..., Awaitable[Transient | list[Transie
 CoroutineAndArgs: TypeAlias = tuple[TransientAwaitable, Collection[str]]
 
 ENDPOINT_MAPPING: dict[Names, CoroutineAndArgs] = {
-    Names.EMPTY: (list_all_transients, ("limit", "offset", "dao")),
-    Names.SINGLE: (get_transient, ("name", "dao")),
-    Names.MULTIPLE: (get_transients, ("names", "limit", "offset", "dao")),
+    Names.EMPTY: (list_all_transients, ("limit", "offset", "transient_dao")),
+    Names.SINGLE: (get_transient, ("name", "transient_dao", "monitoring_dao")),
+    Names.MULTIPLE: (
+        get_transients,
+        ("names", "limit", "offset", "transient_dao", "monitoring_dao"),
+    ),
 }
 
 
@@ -72,7 +76,6 @@ async def _get_name_endpoint_and_args(name: Names) -> CoroutineAndArgs:
 def _resolve_kwargs(
     names: list[str], kwargs: dict[str, Any], args: Collection[str]
 ) -> dict[str, Any]:
-
     if "name" in args:
         kwargs["name"] = names[0]
     elif "names" in args:
@@ -98,7 +101,8 @@ async def search(
     subtype: str = "",
     limit: int = 10,
     offset: int = 0,
-    dao: TransientDAO = Depends(),
+    transient_dao: TransientDAO = Depends(),
+    monitoring_dao: TransientLogDAO = Depends(),
 ):
     """
     :param: name = name
@@ -108,12 +112,14 @@ async def search(
     leading SN/AT designations (SN2020XXY -> 2020XXY)
 
     Returns the data for a given transient as a simple HTML table instead of JSON."""
+    name = verify_transient_name(name)
 
     kwargs = {
         "subtype": subtype,
         "limit": limit,
         "offset": offset,
-        "dao": dao,
+        "transient_dao": transient_dao,
+        "monitoring_dao": monitoring_dao,
     }
 
     transients = await call_name_endpoint_with_kwargs(name, **kwargs)

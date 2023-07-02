@@ -84,7 +84,7 @@ nav[aria-label=breadcrumb] a[aria-current] {
 </style>
 <nav>
     <ul>
-      <li><strong><a href="/static">TNSQUERY</strong></a></li>
+      <li><strong><a href="/">TNSQUERY</strong></a></li>
     </ul>
     <ul>
       <li><a href="/api/docs#">Docs</a></li>

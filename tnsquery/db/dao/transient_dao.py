@@ -2,9 +2,9 @@ import asyncio
 from typing import List, Optional
 
 from fastapi import Depends
-from sqlalchemy import Float, Integer, String, cast, delete, insert, select, update
+from sqlalchemy import delete, select, update
 from sqlalchemy.ext.asyncio import AsyncSession
-
+from dataclasses import asdict
 
 from tnsquery.db.dependencies import get_db_session
 from tnsquery.db.models.transient_model import ATModel, Transient, verify_transient_name
@@ -23,7 +23,18 @@ class TransientDAO:
         :param name: name of a transient.
         """
         at = ATModel.from_transient(transient)
-        self.session.add(at)
+
+        existing_transient = await self.get_transient(transient.name)
+        if existing_transient:
+            await self.session.execute(
+                update(ATModel)
+                .where(ATModel.id == existing_transient.id)
+                .values(asdict(transient))
+            )
+
+        else:
+            self.session.add(at)
+
         return at
 
     async def record_transients(self, transients: List[Transient]) -> None:
