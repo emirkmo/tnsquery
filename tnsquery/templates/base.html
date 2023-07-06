@@ -1,0 +1,34 @@
+{# base.html #}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta charset="UTF-8">
+    <link rel="stylesheet" href="https://unpkg.com/@picocss/pico@latest/css/pico.min.css">
+    <link id="favicon" rel="icon" type="image/x-icon" href="/static/favicon.ico">
+    {% block title %}
+    <title>TNSQuery</title>
+    {% endblock title %}
+
+    <!-- Responsive Nav Bar -->
+    {% include "navbar.html" %}
+
+    {% block header_rest %}
+    {% endblock header_rest %}
+
+</head>
+<body>
+    {% block body %}
+
+    {% endblock body %}
+</body>
+
+    {% block script %}
+<!-- <script></script> -->
+    {% endblock script %}
+<footer>
+    <div class="container-fluid">
+        <small>Created and maintained by <a class="contrast" href = "mailto: emir.k@phys.au.dk">Emir Karamehmetoglu</a></small>
+    </div>
+</footer>
+</html>

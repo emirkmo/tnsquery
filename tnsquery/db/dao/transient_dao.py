@@ -1,12 +1,13 @@
-from lib2to3.pgen2.token import AT
+import asyncio
 from typing import List, Optional
 
 from fastapi import Depends
-from sqlalchemy import select, insert, delete, update, cast, Float, String, Integer
+from sqlalchemy import delete, select, update
 from sqlalchemy.ext.asyncio import AsyncSession
+from dataclasses import asdict
 
 from tnsquery.db.dependencies import get_db_session
-from tnsquery.db.models.transient_model import ATModel, Transient
+from tnsquery.db.models.transient_model import ATModel, Transient, verify_transient_name
 
 
 class TransientDAO:
@@ -22,8 +23,24 @@ class TransientDAO:
         :param name: name of a transient.
         """
         at = ATModel.from_transient(transient)
-        self.session.add(at)
+
+        existing_transient = await self.get_transient(transient.name)
+        if existing_transient:
+            await self.session.execute(
+                update(ATModel)
+                .where(ATModel.id == existing_transient.id)
+                .values(asdict(transient))
+            )
+
+        else:
+            self.session.add(at)
+
         return at
+
+    async def record_transients(self, transients: List[Transient]) -> None:
+        await asyncio.gather(
+            *(self.create_transient_model(transient) for transient in transients),
+        )
 
     async def get_all_transients(self, limit: int, offset: int) -> List[ATModel]:
         """
@@ -31,13 +48,30 @@ class TransientDAO:
 
         :param limit: limit of transients.
         :param offset: offset of transients.
-        :return: stream of transients.
+        :return: transients, a stream of transients.
         """
         raw_transients = await self.session.execute(
             select(ATModel).limit(limit).offset(offset),
         )
 
         transients: List[ATModel] = raw_transients.scalars().fetchall()
+        return transients
+
+    async def get_transients(
+        self,
+        names: list[str],
+        limit: int = 1000,
+        offset: int = 0,
+    ) -> List[Optional[ATModel]]:
+        """
+        Get specific transient model.
+
+        :param name: name of transient instance.
+        :return: transient models.
+        """
+        query = select(ATModel).filter(ATModel.name.in_(names))
+        rows = await self.session.execute(query.limit(limit).offset(offset))
+        transients: List[Optional[ATModel]] = rows.scalars().all()
         return transients
 
     async def get_transient(
@@ -63,13 +97,38 @@ class TransientDAO:
         """
         query = delete(ATModel).where(ATModel.name == name)
         await self.session.execute(query)
-        
-    async def update_param(self, model: ATModel, paramname: str, paramvalue: str|float) -> None:
+        await self.session.flush()
+
+    async def update_param(
+        self, model: ATModel, paramname: str, paramvalue: str | float
+    ) -> None:
         """
         Update parameter of transient model.
 
         :param name: name of parameter to update.
         :paramvalue: value of updated parameter.
         """
+        self.session.add(model)
         setattr(model, paramname, paramvalue)
-        
+        await self.session.flush()
+
+    async def get_verified_transient(self, name: str) -> Optional[ATModel]:
+        """
+        Get transients with verified name,
+        Raises Exception if name is malformed.
+
+        :param name: name of parameter to update.
+        :return: transient model
+        """
+        name = verify_transient_name(name)
+        transient = await self.get_transient(name)
+        return transient
+
+    async def get_verified_transients(
+        self,
+        names: list[str],
+        limit: int = 1000,
+        offset: int = 0,
+    ) -> List[ATModel | None]:
+        clean_names = [verify_transient_name(name) for name in names]
+        return await self.get_transients(clean_names, limit=limit, offset=offset)

@@ -10,7 +10,7 @@ services:
     environment:
       TNSQUERY_RELOAD: "True"
       TNSQUERY_HOST: "0.0.0.0"
-      TNSQUERY_DB_HOST: "10.92.48.2"
+      TNSQUERY_DB_HOST: "${DB_HOST_IP}"
       TNSQUERY_DB_PORT: 5432
       TNSQUERY_DB_USER: tnsquery
       TNSQUERY_DB_PASS: tnsquery
@@ -18,7 +18,7 @@ services:
     ports:
       # Exposes application port.
     - "8080:8080"
-    - "5432:5432"
+    #- "5432:5432"
     volumes:
       # Adds current directory as volume.
     - .:/app/src

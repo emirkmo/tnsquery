@@ -1,11 +1,11 @@
 import enum
+import logging
+import os
 from pathlib import Path
 from tempfile import gettempdir
 
-from pydantic import BaseSettings
+from pydantic import BaseSettings, Field
 from yarl import URL
-import logging
-import os
 
 TEMP_DIR = Path(gettempdir())
 
@@ -29,17 +29,19 @@ class Settings(BaseSettings):
     with environment variables.
     """
 
+    api_key: str = Field(..., env="TNSQUERY_API_KEY")  # Required TNSQUERY_API_KEY
     host: str = "0.0.0.0"
-    port: int = int(os.environ.get("PORT", 8080))
-    if port != 8080: ## not running in prod:
-        logger = logging.getLogger()
-        logger.setLevel(logging.DEBUG)
-        logger.debug("port should be 8080, but is %s", port)
-        port = 8080 
+    port: int = Field(8080, env="TNSQUERY_PORT")
+    # int(os.environ.get("PORT", 8080))
+    # if port != 8080:  # not running in prod:
+    #     logger = logging.getLogger()
+    #     logger.setLevel(logging.DEBUG)
+    #     logger.debug("port should be 8080, but is %s", port)
+    #     # port = 8080
     # quantity of workers for uvicorn
-    workers_count: int = 1
+    workers_count: int = 2
     # Enable uvicorn reloading
-    reload: bool = False
+    reload: bool = True
 
     # Current environment
     environment: str = "dev"
@@ -47,12 +49,22 @@ class Settings(BaseSettings):
     log_level: LogLevel = LogLevel.INFO
 
     # Variables for the database
-    db_host: str = "10.92.48.2"
+    db_host: str = Field("10.92.48.2", env="TNSQUERY_DB_HOST")
     db_port: int = 5432
     db_user: str = "tnsquery"
     db_pass: str = "tnsquery"
     db_base: str = "tnsquery"
-    db_echo: bool = False
+    db_echo: bool = True
+    
+    # Docs | Open Api
+    open_api_url: str = "/api/openapi.json"
+    redoc_url: str = "/api/redoc"
+    swagger_css_url: str = "/openapi/dark.css"
+    open_api_dir: str = "tnsquery/openapi"
+    
+    # Static Mounts
+    static_files_dir: str = "tnsquery/static"
+    favicon_url: str = "/static/favicon.ico"
 
     @property
     def db_url(self) -> URL:

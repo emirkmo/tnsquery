@@ -1,0 +1,26 @@
+{% extends "table_page.html" %}
+
+{% block table %}
+    <thead>
+        <tr>
+            <th scope="col">#</th>
+            <th scope="col">Name</th>
+            <th scope="col">RA [J2000]</th>
+            <th scope="col">DEC [J2000]</th>
+            <th scope="col">Redshift</th>
+            <th scope="col">Extinction [E(B-V)]</th>
+        </tr>
+    </thead>
+    <tbody>
+    {% for item in items|sort(attribute="name") %}     
+        <tr>
+            <th scope="row">{{ loop.index }}</th>
+            <td>{{ item.name }}</td>
+            <td>{{ item.ra }}</td>
+            <td>{{ item.dec }}</td>
+            <td>{{ item.redshift }}</td>
+            <td>{{ item.ebv }}</td>
+        </tr>
+    {% endfor %}
+    </tbody>
+{% endblock table %}

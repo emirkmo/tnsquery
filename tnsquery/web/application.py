@@ -1,12 +1,15 @@
 from importlib import metadata
 
-from fastapi import FastAPI, Depends
+from fastapi import FastAPI
 from fastapi.responses import UJSONResponse
-from tnsquery.db.dependencies import get_db_session
+from fastapi.staticfiles import StaticFiles
 
+from tnsquery.settings import settings
 from tnsquery.web.api.router import api_router
-from tnsquery.web.lifetime import register_shutdown_event, register_startup_event, create_db_tables
-from tnsquery.db.base import Base
+from tnsquery.web.docs.open_api.title import custom_title
+from tnsquery.web.docs.router import docs_router
+from tnsquery.web.frontend.router import frontend_router
+from tnsquery.web.lifetime import register_shutdown_event, register_startup_event
 
 
 def get_app() -> FastAPI:
@@ -19,21 +22,29 @@ def get_app() -> FastAPI:
     """
     app = FastAPI(
         title="tnsquery",
-        description="Python API for limited queries of the Transient Name Server to obtain Supernova/Transient metadata ",
+        description="Python API for limited metadata queries of Supernovae/Transients from the Transient Name Server."
+        + custom_title,
         version=metadata.version("tnsquery"),
-        docs_url="/api/docs",
-        redoc_url="/api/redoc",
-        openapi_url="/api/openapi.json",
+        redoc_url=settings.redoc_url,
+        openapi_url=settings.open_api_url,
         default_response_class=UJSONResponse,
     )
-
-    # Adds startup and shutdown events.
+    # Startup and Shutdown events
     register_startup_event(app)
     register_shutdown_event(app)
-    # create_db_tables(app)
-    # create_db_tables(app)
 
-    # Main router for the API.
+    # API & Frontend Routes
     app.include_router(router=api_router, prefix="/api")
+    app.include_router(router=frontend_router)
+
+    # Open API
+    app.mount("/openapi", StaticFiles(directory="tnsquery/openapi"), name="openapi")
+    app.include_router(router=docs_router)
+
+    # Static HTML serving on root (must be last)!
+    app.mount(
+        "/static", StaticFiles(directory="tnsquery/static", html=True), name="static"
+    )
+    app.mount("/", StaticFiles(directory="tnsquery/static", html=True), name="root")
 
     return app

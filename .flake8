@@ -1,11 +1,13 @@
 [flake8]
-max-complexity = 6
+max-complexity = 10
 inline-quotes = double
 max-line-length = 88
 extend-ignore = E203
 docstring_style=sphinx
 
 ignore =
+  ; Named returns (it's good coding style!)
+  WPS331
   ; Found `f` string
   WPS305,
   ; Missing docstring in public module

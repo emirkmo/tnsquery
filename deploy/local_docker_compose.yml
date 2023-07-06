@@ -7,18 +7,26 @@ services:
       dockerfile: ./deploy/Dockerfile
     image: tnsquery:${TNSQUERY_VERSION:-latest}
     restart: always
-    env_file:
-    - .env
     depends_on:
-      db:
-        condition: service_healthy
+      - db
+    #   #:
+    #     #condition: service_healthy
     environment:
-      TNSQUERY_HOST: localhost
+      TNSQUERY_RELOAD: "True"
+      TNSQUERY_HOST: "0.0.0.0"
+      # TNSQUERY_HOST: localhost
       TNSQUERY_DB_HOST: tnsquery-db
       TNSQUERY_DB_PORT: 5432
       TNSQUERY_DB_USER: tnsquery
       TNSQUERY_DB_PASS: tnsquery
       TNSQUERY_DB_BASE: tnsquery
+    ports:
+      - "8001:8001"
+    volumes:
+      # Adds current directory as volume.
+    - .:/app/src
+    env_file:
+    - .env
 
   db:
     image: postgres:13.6-bullseye
@@ -30,11 +38,11 @@ services:
     volumes:
     - tnsquery-db-data:/var/lib/postgresql/data
     restart: always
-    healthcheck:
-      test: pg_isready -U tnsquery
-      interval: 2s
-      timeout: 3s
-      retries: 40
+    # healthcheck:
+    #   test: pg_isready -U tnsquery
+    #   interval: 20s
+    #   timeout: 10s
+    #   retries: 40
 
   migrator:
     image: tnsquery:${TNSQUERY_VERSION:-latest}
@@ -47,8 +55,8 @@ services:
       TNSQUERY_DB_PASS: tnsquery
       TNSQUERY_DB_BASE: tnsquery
     depends_on:
-      db:
-        condition: service_healthy
+      - db
+        # condition: service_healthy
 
 
 

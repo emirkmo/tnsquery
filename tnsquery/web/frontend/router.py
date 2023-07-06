@@ -1,8 +1,6 @@
-from fastapi.routing import APIRouter
-from fastapi import Depends
+from fastapi import APIRouter
 
-from tnsquery.db.dependencies import get_db_session
-from tnsquery.web.api import transient
+from tnsquery.web.frontend import search
 
-api_router = APIRouter()
-api_router.include_router(transient.router)
+frontend_router = APIRouter()
+frontend_router.include_router(search.router)

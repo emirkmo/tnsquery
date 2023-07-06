@@ -8,6 +8,7 @@ from sqlalchemy.ext.asyncio import (
     create_async_engine,
 )
 from sqlalchemy.orm import sessionmaker
+
 from tnsquery.db.base import Base
 from tnsquery.settings import settings
 
@@ -22,15 +23,17 @@ def _setup_db(app: FastAPI) -> None:  # pragma: no cover
 
     :param app: fastAPI application.
     """
-    print(str(settings.db_url))
-    engine = create_async_engine(str(settings.db_url), echo=settings.db_echo, future=True)
-    
+    engine = create_async_engine(
+        str(settings.db_url), echo=settings.db_echo, future=True
+    )
+
     session_factory = async_scoped_session(
         sessionmaker(
             engine,
             expire_on_commit=False,
             class_=AsyncSession,  # type: ignore
             future=True,
+            autoflush=True,
         ),
         scopefunc=current_task,
     )
@@ -88,5 +91,4 @@ async def create_db_tables(app: FastAPI) -> None:  # pragma: no cover
     """
     engine = app.state.db_engine
     async with engine.begin() as conn:
-        await conn.run_sync(Base.metadata.create_all)
-    
+        await conn.run_sync(Base.metadata.create_all)  # type: ignore

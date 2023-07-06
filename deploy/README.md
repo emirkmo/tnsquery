@@ -1,4 +1,4 @@
-### Deployment notes
+# Deployment notes
 
 Deployed using docker compose with the dockerfile.
 
@@ -18,10 +18,17 @@ tnsquery-db
 Serverless VPC connection
 private-ip
 
+## build & deploy
+
+```bash
+docker-compose --project-directory . build --no-cache
+```
+
 Remote connection:
 cloud-sql-auth-proxy (installed and running on docker)
+gcloud auth activate-service-account --key-file=/path/to/file
 
-
-
-
-
+```bash
+docker tag <image> <region>-docker.pkg.dev/<project-id>/repository/project-name:tag
+docker push
+```
